@@ -15,7 +15,7 @@ jobs:
     - name: Install FFmpeg and Fonts
       run: |
         sudo apt-get update
-        sudo apt-get install -y ffmpeg ttf-dejavu
+        sudo apt-get install -y ffmpeg fonts-dejavu
 
     - name: Run Audio Stream with Text Overlay
       run: |
