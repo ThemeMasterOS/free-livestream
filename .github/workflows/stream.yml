@@ -1,0 +1,35 @@
+name: 24/7 Custom YouTube Audio Stream
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */5 * * *'
+
+jobs:
+  stream:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install FFmpeg and yt-dlp
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg python3-pip
+        sudo wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp
+        sudo chmod a+rx /usr/local/bin/yt-dlp
+
+    - name: Run Audio Stream with Text Overlay
+      run: |
+        MUSIC_YT_URL="https://youtu.be/VqiFl8Tdx_8?si=LVH84gJReGlcv2Mx"
+        AUDIO_STREAM_URL=$(yt-dlp -f bestaudio -g "$MUSIC_YT_URL")
+        MESSAGE="Stream paused. Resuming next Saturday."
+
+        timeout 5h ffmpeg -re -f lavfi -i color=c=black:s=1280x720:r=30 -i "$AUDIO_STREAM_URL" \
+        -filter_complex "[0:v] \
+        drawtext=text='UTC time\: %{pts\:localtime\:${EPOCHSECONDS}\:%Y-%m-%d at %H\:%M\:%S}':x=20:y=20:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.4, \
+        drawtext=text='My time (PHT)\: %{pts\:localtime\:$((EPOCHSECONDS + 28800))\:%Y-%m-%d at %H\:%M\:%S}':x=20:y=55:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.4, \
+        drawtext=text='$MESSAGE':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=44:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=10" \
+        -c:v libx264 -preset ultrafast -b:v 1500k -maxrate 1500k -bufsize 3000k \
+        -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -shortest -f flv \
+        rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}
