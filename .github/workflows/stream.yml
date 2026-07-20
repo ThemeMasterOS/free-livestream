@@ -4,6 +4,10 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 */5 * * *'
+  workflow_run:
+    workflows: ["24/7 Custom YouTube Audio Stream"]
+    types:
+      - completed
 
 jobs:
   stream:
@@ -23,13 +27,10 @@ jobs:
         MESSAGE="Stream paused. Resuming next Saturday."
         FONT_PATH="/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
-        # Get current epoch timestamp in seconds
         START_EPOCH=$(date +%s)
-        
-        # Calculate Philippine Time offset (UTC + 8 hours = +28800 seconds)
         PHT_EPOCH=$((START_EPOCH + 28800))
 
-        # Using dots (.) instead of colons (:) to completely bypass FFmpeg filter parsing bugs
+        # Catch exit code 124 (timeout) and turn it into a clean exit code 0
         timeout 5h ffmpeg -re -f lavfi -i color=c=black:s=1280x720:r=30 -stream_loop -1 -i "$AUDIO_STREAM_URL" \
         -filter_complex "[0:v] \
         drawtext=fontfile='${FONT_PATH}':text='UTC Time - %{pts\:localtime\:${START_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=20:y=20:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.4, \
@@ -37,4 +38,4 @@ jobs:
         drawtext=fontfile='${FONT_PATH}':text='${MESSAGE}':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=44:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=10" \
         -c:v libx264 -preset ultrafast -b:v 1500k -maxrate 1500k -bufsize 3000k \
         -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -shortest -f flv \
-        rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}
+        rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }} || [ $? -eq 124 ]
