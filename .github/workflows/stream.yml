@@ -1,7 +1,7 @@
 name: 24/7 Custom YouTube Audio Stream
 
-concurrency:
-  group: youtube-stream
+concurrency: 
+  group: main-stream
   cancel-in-progress: false
 
 on:
