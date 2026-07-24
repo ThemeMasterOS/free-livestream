@@ -1,4 +1,4 @@
-name: 24/7 Custom YouTube Audio Stream
+name: 24/7 NCS Radio Stream
 
 concurrency:
   group: youtube-stream
