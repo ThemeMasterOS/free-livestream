@@ -26,7 +26,7 @@ jobs:
     - name: Run Audio Stream with Text Overlay
       run: |
         AUDIO_STREAM_URL="http://stream.laut.fm/ncsradio"
-        MESSAGE="Stream paused. Resuming next Saturday."
+        MESSAGE="Stream paused."
         FONT_PATH="/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
         START_EPOCH=$(date +%s)
