@@ -30,7 +30,7 @@ jobs:
     - name: Run Video Stream with Text Overlay
       run: |
         VIDEO_FILE="ilocano_bg.mp4"
-        FONT_PATH="/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+        FONT_PATH="fonts/SofiaProBold.otf"
 
         START_EPOCH=$(date +%s)
         PHT_EPOCH=$((START_EPOCH + 28800))
