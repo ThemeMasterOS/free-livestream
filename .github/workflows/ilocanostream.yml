@@ -26,8 +26,7 @@ jobs:
 
     - name: Download Video from Google Drive
       run: |
-        gdown --id "1mZAYvQNg8R3g1nOgbcpHSvtuqD_wayKE" -O ilocano_bg.mp4
-
+        gdown "https://drive.google.com/uc?id=1mZAYvQNg8R3g1nOgbcpHSvtuqD_wayKE" -O ilocano_bg.mp4
     - name: Run Video Stream with Text Overlay
       run: |
         VIDEO_FILE="ilocano_bg.mp4"
