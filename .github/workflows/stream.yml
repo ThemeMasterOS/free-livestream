@@ -34,9 +34,9 @@ jobs:
 
         timeout 17700s ffmpeg -re -f lavfi -i color=c=black:s=1920x1080:r=30 -stream_loop -1 -i "$AUDIO_STREAM_URL" \
         -filter_complex "[0:v] \
-        drawtext=fontfile='${FONT_PATH}':text='UTC Time - %{pts\:localtime\:${START_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=20:y=20:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.4, \
-        drawtext=fontfile='${FONT_PATH}':text='My Time (PHT) - %{pts\:localtime\:${PHT_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=20:y=55:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.4, \
-        drawtext=fontfile='${FONT_PATH}':text='${MESSAGE}':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=44:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=10" \
+        drawtext=fontfile='${FONT_PATH}':text='UTC Time - %{pts\:localtime\:${START_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=30:fontsize=54:fontcolor=white:box=1:boxcolor=black@0.4, \
+        drawtext=fontfile='${FONT_PATH}':text='My Time (PHT) - %{pts\:localtime\:${PHT_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=95:fontsize=54:fontcolor=white:box=1:boxcolor=black@0.4, \
+        drawtext=fontfile='${FONT_PATH}':text='${MESSAGE}':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=98:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=15" \
         -c:v libx264 -preset ultrafast -b:v 1500k -maxrate 1500k -bufsize 3000k \
         -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -shortest -f flv \
         rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }} || true
