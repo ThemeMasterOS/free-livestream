@@ -27,12 +27,12 @@ jobs:
       run: |
         AUDIO_STREAM_URL="http://stream.laut.fm/ncsradio"
         MESSAGE="Stream paused"
-        FONT_PATH="/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+        FONT_PATH="fonts/SofiaProBold.otf"
 
         START_EPOCH=$(date +%s)
         PHT_EPOCH=$((START_EPOCH + 28800))
 
-        timeout 17700s ffmpeg -re -f lavfi -i color=c=black:s=1280x720:r=30 -stream_loop -1 -i "$AUDIO_STREAM_URL" \
+        timeout 17700s ffmpeg -re -f lavfi -i color=c=black:s=1920x1080:r=30 -stream_loop -1 -i "$AUDIO_STREAM_URL" \
         -filter_complex "[0:v] \
         drawtext=fontfile='${FONT_PATH}':text='UTC Time - %{pts\:localtime\:${START_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=20:y=20:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.4, \
         drawtext=fontfile='${FONT_PATH}':text='My Time (PHT) - %{pts\:localtime\:${PHT_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=20:y=55:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.4, \
