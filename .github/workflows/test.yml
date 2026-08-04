@@ -19,7 +19,7 @@ jobs:
     - name: Download Test Video
       run: |
         # Download your 4-second test video here
-        gdown "https://drive.google.com/uc?id=1w8MCzUtFpN01Mk3UXr6IGipXBxvc_FUn" -O test.mp4
+        gdown "https://drive.google.com/uc?id=1A2-vcSK4w_hjnDNGVfcGdAgELxagYzi1 -O test.mp4
 
     - name: Run Video Stream Test
       run: |
