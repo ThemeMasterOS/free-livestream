@@ -2,7 +2,7 @@ name: 24/7 Chat uses ChatMBR Stream
 
 concurrency: 
   group: ai-stream-v2
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 on:
   workflow_dispatch:
