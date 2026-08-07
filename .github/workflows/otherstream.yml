@@ -25,7 +25,7 @@ jobs:
 
       - name: Run Audio Stream with Text Overlay
         run: |
-          AUDIO_STREAM_URL="http://stream.laut.fm/ncsradio"
+          AUDIO_STREAM_URL="http://stream.laut.fm/ncs"
           MESSAGE="Ffmpeg Stream by ThemeMasterOS"
           FONT_PATH="fonts/SofiaProBold.otf"
 
