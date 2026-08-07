@@ -2,11 +2,11 @@ name: 30 min for Chat uses Stream
 
 concurrency: 
   group: chat-stream
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 on:
   workflow_dispatch:
-  
+
 permissions:
   contents: read
   actions: write
@@ -15,37 +15,37 @@ jobs:
   stream:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Install FFmpeg and Fonts
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y ffmpeg fonts-dejavu
+      - name: Install FFmpeg and Fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu
 
-     - name: Run Audio Stream with Text Overlay
-      run: |
-        AUDIO_STREAM_URL="http://stream.laut.fm/ncsradio"
-        MESSAGE="Ffmpeg Stream by ThemeMasterOS"
-        FONT_PATH="fonts/SofiaProBold.otf"
+      - name: Run Audio Stream with Text Overlay
+        run: |
+          AUDIO_STREAM_URL="http://stream.laut.fm/ncsradio"
+          MESSAGE="Ffmpeg Stream by ThemeMasterOS"
+          FONT_PATH="fonts/SofiaProBold.otf"
 
-        START_EPOCH=$(date +%s)
+          START_EPOCH=$(date +%s)
 
-        # Dynamically calculate Central Time offset in seconds
-        CT_OFFSET=$(TZ="America/Chicago" date +%z | awk '{
-          sign = substr($0,1,1) "1";
-          hrs = substr($0,2,2);
-          mins = substr($0,4,2);
-          print sign * (hrs * 3600 + mins * 60);
-        }')
+          # Dynamically calculate Central Time offset in seconds
+          CT_OFFSET=$(TZ="America/Chicago" date +%z | awk '{
+            sign = substr($0,1,1) "1";
+            hrs = substr($0,2,2);
+            mins = substr($0,4,2);
+            print sign * (hrs * 3600 + mins * 60);
+          }')
 
-        CT_EPOCH=$((START_EPOCH + CT_OFFSET))
+          CT_EPOCH=$((START_EPOCH + CT_OFFSET))
 
-        timeout 30m ffmpeg -re -f lavfi -i color=c=black:s=1920x1080:r=30 -stream_loop -1 -i "$AUDIO_STREAM_URL" \
-        -filter_complex "[0:v] \
-        drawtext=fontfile='${FONT_PATH}':text='UTC Time - %{pts\:localtime\:${START_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=30:fontsize=54:fontcolor=white:box=1:boxcolor=black@0.4, \
-        drawtext=fontfile='${FONT_PATH}':text='Tristin Time (CT) - %{pts\:localtime\:${CT_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=95:fontsize=54:fontcolor=white:box=1:boxcolor=black@0.4, \
-        drawtext=fontfile='${FONT_PATH}':text='${MESSAGE}':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=98:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=15" \
-        -c:v libx264 -preset ultrafast -b:v 1500k -maxrate 1500k -bufsize 3000k \
-        -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -shortest -f flv \
-        rtmp://a.rtmp.youtube.com/live2/${{ secrets.E_KEY }} || true
+          timeout 30m ffmpeg -re -f lavfi -i color=c=black:s=1920x1080:r=30 -stream_loop -1 -i "$AUDIO_STREAM_URL" \
+            -filter_complex "[0:v] \
+            drawtext=fontfile='${FONT_PATH}':text='UTC Time - %{pts\:localtime\:${START_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=30:fontsize=54:fontcolor=white:box=1:boxcolor=black@0.4, \
+            drawtext=fontfile='${FONT_PATH}':text='Tristin Time (CT) - %{pts\:localtime\:${CT_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=95:fontsize=54:fontcolor=white:box=1:boxcolor=black@0.4, \
+            drawtext=fontfile='${FONT_PATH}':text='${MESSAGE}':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=98:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=15" \
+            -c:v libx264 -preset ultrafast -b:v 1500k -maxrate 1500k -bufsize 3000k \
+            -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -shortest -f flv \
+            rtmp://a.rtmp.youtube.com/live2/${{ secrets.E_KEY }} || true
