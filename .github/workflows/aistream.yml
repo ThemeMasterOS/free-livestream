@@ -25,7 +25,7 @@ jobs:
 
     - name: Run Audio Stream with Text Overlay
       run: |
-        AUDIO_STREAM_URL="https://stream.laut.fm/radio38"
+        AUDIO_STREAM_URL="https://stream.laut.fm/ncs"
         MESSAGE="Chat uses ChatMBR"
         FONT_PATH="fonts/SofiaProBold.otf"
 
