@@ -2,11 +2,11 @@ name: 24/7 NCS Stream
 
 concurrency: 
   group: ncs-stream
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 on:
   workflow_dispatch:
-
+  
 permissions:
   contents: read
   actions: write
@@ -18,30 +18,27 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install FFmpeg, Fonts, and gdown
+    - name: Install FFmpeg and Fonts
       run: |
         sudo apt-get update
-        sudo apt-get install -y ffmpeg fonts-dejavu python3-pip
-        pip3 install gdown
+        sudo apt-get install -y ffmpeg fonts-dejavu
 
-    - name: Download Video from Google Drive
+    - name: Run Audio Stream with Text Overlay
       run: |
-        gdown "https://drive.google.com/uc?id=1LW-AvOfWfwGQ2mMlvjhTba7fE_tK2VOJ" -O NCS_Radio.mp4
-
-    - name: Run Video Stream with Text Overlay
-      run: |
-        VIDEO_FILE="NCS_Radio.mp4"
+        AUDIO_STREAM_URL="http://stream.laut.fm/ncs"
+        MESSAGE="NCS Radio"
         FONT_PATH="fonts/SofiaProBold.otf"
 
         START_EPOCH=$(date +%s)
         PHT_EPOCH=$((START_EPOCH + 28800))
 
-        timeout 11150s ffmpeg -re -stream_loop -1 -i "$VIDEO_FILE" \
+        timeout 17700s ffmpeg -re -f lavfi -i color=c=black:s=1920x1080:r=30 -stream_loop -1 -i "$AUDIO_STREAM_URL" \
         -filter_complex "[0:v] \
-        drawtext=fontfile='${FONT_PATH}':text='UTC Time - %{pts\:localtime\:${START_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=20:y=20:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.4, \
-        drawtext=fontfile='${FONT_PATH}':text='My Time (PHT) - %{pts\:localtime\:${PHT_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=20:y=55:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.4" \
-        -c:v libx264 -preset ultrafast -b:v 2500k -maxrate 2500k -bufsize 5000k \
-        -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -f flv \
+        drawtext=fontfile='${FONT_PATH}':text='UTC Time - %{pts\:localtime\:${START_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=30:fontsize=54:fontcolor=white:box=1:boxcolor=black@0.4, \
+        drawtext=fontfile='${FONT_PATH}':text='My Time (PHT) - %{pts\:localtime\:${PHT_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=95:fontsize=54:fontcolor=white:box=1:boxcolor=black@0.4, \
+        drawtext=fontfile='${FONT_PATH}':text='${MESSAGE}':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=98:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=15" \
+        -c:v libx264 -preset ultrafast -b:v 1500k -maxrate 1500k -bufsize 3000k \
+        -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -shortest -f flv \
         rtmp://a.rtmp.youtube.com/live2/${{ secrets.NCS_KEY }} || true
 
     - name: Automatically Trigger Next Stream
