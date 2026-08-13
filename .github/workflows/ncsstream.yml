@@ -43,7 +43,7 @@ jobs:
         drawtext=fontfile='${FONT_PATH}':text='UTC Time - %{pts\:localtime\:${START_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=30:fontsize=54:fontcolor=white:box=1:boxcolor=black@0.4, \
         drawtext=fontfile='${FONT_PATH}':text='My Time (PHT) - %{pts\:localtime\:${PHT_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=95:fontsize=54:fontcolor=white:box=1:boxcolor=black@0.4, \
         drawtext=fontfile='${FONT_PATH}':text='Unix Time - %{eif\:${START_EPOCH}+t\:d}':x=30:y=160:fontsize=54:fontcolor=white:box=1:boxcolor=black@0.4, \
-        drawtext=fontfile='${FONT_PATH}':textfile='current_song.txt':reload=1:x=(w-text_w)/2:y=(h-text_h)/2:fontsize='if(gt(text_w,1800), 90*1800/text_w, 90)':fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=15" \
+        drawtext=fontfile='${FONT_PATH}':textfile='current_song.txt':reload=1:x=(w-text_w)/2:y=(h-text_h)/2:fontsize=98:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=15" \
         -c:v libx264 -preset superfast -b:v 6800k -minrate 6800k -maxrate 6800k -bufsize 13600k -x264-params nal-hrd=cbr \
         -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -shortest -f flv \
         rtmp://a.rtmp.youtube.com/live2/${{ secrets.NCS_KEY }} || true
