@@ -15,15 +15,17 @@ def update_text(message: str):
 
 
 def format_song_display(title: str, artist: str) -> str:
-    """Formats the song text. 
-    If it's longer than 35 chars, it splits onto 2 lines so FFmpeg centers it cleanly.
+    """Formats track as 'Artist - Song name [NCS]'.
+    If total length > 35 chars, splits onto 2 lines with Artist top and Song bottom.
     """
-    if title and artist:
-        single_line = f"{title} - {artist} [NCS]"
-        # If text length exceeds 35 characters, split across two lines
+    if artist and title:
+        single_line = f"{artist} - {title} [NCS]"
+        
+        # If text is too long for a single line on 1080p, split cleanly
         if len(single_line) > 35:
-            return f"{title}\n{artist} [NCS]"
+            return f"{artist}\n{title} [NCS]"
         return single_line
+        
     elif title:
         return f"{title} [NCS]"
     
