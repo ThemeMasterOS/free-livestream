@@ -16,17 +16,31 @@ def update_text(message: str):
 
 def format_song_display(title: str, artist: str) -> str:
     """Formats track as 'Artist - Song name [NCS]'.
-    If total length > 35 chars, splits onto 2 lines with Artist top and Song bottom.
+    Strips out extra tags like '[NCS Release]' so titles stay clean.
     """
     if artist and title:
+        # 1. Clean up extra tag bloat from the title
+        title = (
+            title.replace("[NCS Release]", "")
+                 .replace("(NCS Release)", "")
+                 .strip()
+        )
+        
+        # 2. Build the display string
         single_line = f"{artist} - {title} [NCS]"
         
-        # If text is too long for a single line on 1080p, split cleanly
+        # Optional: Split long titles into 2 lines if still > 35 chars
         if len(single_line) > 35:
             return f"{artist}\n{title} [NCS]"
+            
         return single_line
         
     elif title:
+        title = (
+            title.replace("[NCS Release]", "")
+                 .replace("(NCS Release)", "")
+                 .strip()
+        )
         return f"{title} [NCS]"
     
     return "Song not found"
