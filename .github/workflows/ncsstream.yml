@@ -18,27 +18,33 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install FFmpeg and Fonts
+    - name: Install FFmpeg, Fonts, and Python Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y ffmpeg fonts-dejavu
+        sudo apt-get install -y ffmpeg fonts-dejavu python3-pip
+        pip install requests
 
-    - name: Run Audio Stream with Text Overlay
+    - name: Run Audio Stream with Dynamic Text Overlay
       run: |
         AUDIO_STREAM_URL="http://stream.laut.fm/ncs"
-        MESSAGE="NCS Radio"
         FONT_PATH="fonts/SofiaProBold.otf"
 
         START_EPOCH=$(date +%s)
         PHT_EPOCH=$((START_EPOCH + 28800))
 
-        timeout 19800s ffmpeg -re -f lavfi -i color=c=black:s=1920x1080:r=30 -stream_loop -1 -i "$AUDIO_STREAM_URL" \
+        # Initialize text file default state
+        echo "Searching song..." > current_song.txt
+
+        # Start background Python script to update current_song.txt live
+        python3 song_tracker.py &
+
+        timeout 19800s ffmpeg -re -f lavfi -i color=c=black:s=1920x1080:r=30 -i "$AUDIO_STREAM_URL" \
         -filter_complex "[0:v] \
         drawtext=fontfile='${FONT_PATH}':text='UTC Time - %{pts\:localtime\:${START_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=30:fontsize=54:fontcolor=white:box=1:boxcolor=black@0.4, \
         drawtext=fontfile='${FONT_PATH}':text='My Time (PHT) - %{pts\:localtime\:${PHT_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=95:fontsize=54:fontcolor=white:box=1:boxcolor=black@0.4, \
         drawtext=fontfile='${FONT_PATH}':text='Unix Time - %{eif\:${START_EPOCH}+t\:d}':x=30:y=160:fontsize=54:fontcolor=white:box=1:boxcolor=black@0.4, \
-        drawtext=fontfile='${FONT_PATH}':text='${MESSAGE}':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=98:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=15" \
-        -c:v libx264 -preset superfast -b:v 6800k -maxrate 6800k -bufsize 13600k \
+        drawtext=fontfile='${FONT_PATH}':textfile='current_song.txt':reload=1:x=(w-text_w)/2:y=(h-text_h)/2:fontsize=98:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=15" \
+        -c:v libx264 -preset superfast -b:v 6800k -minrate 6800k -maxrate 6800k -bufsize 13600k -x264-params nal-hrd=cbr \
         -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -shortest -f flv \
         rtmp://a.rtmp.youtube.com/live2/${{ secrets.NCS_KEY }} || true
 
