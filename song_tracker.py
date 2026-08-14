@@ -1,53 +1,47 @@
-import time
 import requests
+import time
 
-TEXT_FILE = "current_song.txt"
 API_URL = "https://api.laut.fm/station/ncs/current_song"
+TEXT_FILE = "current_song.txt"
 
+# Set this to match FFmpeg's normal audio delay (usually ~13 to 15 seconds)
+BUFFER_DELAY = 13  
 
 def update_text(message: str):
     try:
         with open(TEXT_FILE, "w", encoding="utf-8") as f:
             f.write(message)
-        print(f"[SONG TRACKER] Updated overlay:\n{message}")
+        print(f"[TRACKER] Overlay Updated:\n{message}")
     except Exception as e:
-        print(f"[ERROR] Failed to write file: {e}")
-
+        print(f"[ERROR] Could not write file: {e}")
 
 def format_song_display(title: str, artist: str) -> str:
-    """Formats track as 'Artist - Song name [NCS]'.
-    Strips out extra tags like '[NCS Release]' so titles stay clean.
-    """
-    if artist and title:
-        # 1. Clean up extra tag bloat from the title
-        title = (
-            title.replace("[NCS Release]", "")
-                 .replace("(NCS Release)", "")
-                 .strip()
-        )
+    if not title:
+        return "Searching song..."
         
-        # 2. Build the display string
-        single_line = f"{artist} - {title} [NCS]"
-        
-        # Optional: Split long titles into 2 lines if still > 35 chars
+    # Filter station/ad labels
+    combined = f"{artist} {title}".lower()
+    ad_keywords = ["werbung", "advertisement", "spinquest", "shopify", "laut.fm", "preroll"]
+    if any(keyword in combined for keyword in ad_keywords):
+        return "Sponsor"
+
+    clean_title = (
+        title.replace("[NCS Release]", "")
+             .replace("(NCS Release)", "")
+             .replace("[NCS]", "")
+             .strip()
+    )
+    
+    if artist and artist.lower() not in ["unknown", "", "none"]:
+        single_line = f"{artist.strip()} - {clean_title} [NCS]"
         if len(single_line) > 35:
-            return f"{artist}\n{title} [NCS]"
-            
+            return f"{artist.strip()}\n{clean_title} [NCS]"
         return single_line
         
-    elif title:
-        title = (
-            title.replace("[NCS Release]", "")
-                 .replace("(NCS Release)", "")
-                 .strip()
-        )
-        return f"{title} [NCS]"
-    
-    return "Song not found"
-
+    return f"{clean_title} [NCS]"
 
 def main():
-    last_song = ""
+    last_display = ""
     
     while True:
         try:
@@ -56,19 +50,22 @@ def main():
                 data = res.json()
                 title = data.get("title", "").strip()
                 artist = data.get("artist", {}).get("name", "").strip()
-
-                current = format_song_display(title, artist)
+                
+                formatted = format_song_display(title, artist)
             else:
-                current = "Searching song..."
+                formatted = "Searching song..."
         except Exception:
-            current = "Searching song..."
+            formatted = "Searching song..."
 
-        if current != last_song:
-            update_text(current)
-            last_song = current
+        if formatted != last_display:
+            if last_display != "":
+                print(f"[TRACKER] Song change detected. Waiting {BUFFER_DELAY}s for FFmpeg buffer...")
+                time.sleep(BUFFER_DELAY)
+                
+            update_text(formatted)
+            last_display = formatted
 
         time.sleep(5)
-
 
 if __name__ == "__main__":
     update_text("Searching song...")
