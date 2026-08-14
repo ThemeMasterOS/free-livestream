@@ -36,7 +36,7 @@ jobs:
         echo "Searching song..." > current_song.txt
 
         # Start background Python script to update current_song.txt live
-        python3 icy_tracker.py &
+        python3 song_tracker.py &
 
         timeout 19800s ffmpeg -re -f lavfi -i color=c=black:s=1920x1080:r=30 -i "$AUDIO_STREAM_URL" \
         -filter_complex "[0:v] \
