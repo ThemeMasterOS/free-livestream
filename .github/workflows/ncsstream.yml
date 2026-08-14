@@ -41,8 +41,8 @@ jobs:
         timeout 19800s ffmpeg -re -f lavfi -i color=c=black:s=1920x1080:r=30 -i "$AUDIO_STREAM_URL" \
         -filter_complex "[0:v] \
         drawtext=fontfile='${FONT_PATH}':text='UTC Time - %{pts\:localtime\:${START_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=30:fontsize=33:fontcolor=white:box=1:boxcolor=black@0.4, \
-        drawtext=fontfile='${FONT_PATH}':text='My Time (PHT) - %{pts\:localtime\:${PHT_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=95:fontsize=33:fontcolor=white:box=1:boxcolor=black@0.4, \
-        drawtext=fontfile='${FONT_PATH}':text='Unix Time - %{eif\:${START_EPOCH}+t\:d}':x=30:y=160:fontsize=33:fontcolor=white:box=1:boxcolor=black@0.4, \
+        drawtext=fontfile='${FONT_PATH}':text='My Time (PHT) - %{pts\:localtime\:${PHT_EPOCH}\:%Y-%m-%d  %H.%M.%S}':x=30:y=72:fontsize=33:fontcolor=white:box=1:boxcolor=black@0.4, \
+        drawtext=fontfile='${FONT_PATH}':text='Unix Time - %{eif\:${START_EPOCH}+t\:d}':x=30:y=114:fontsize=33:fontcolor=white:box=1:boxcolor=black@0.4, \
         drawtext=fontfile='${FONT_PATH}':textfile='current_song.txt':reload=1:x=(w-text_w)/2:y=(h-text_h)/2:fontsize=60:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=15" \
         -c:v libx264 -preset superfast -b:v 500k -minrate 500k -maxrate 500k -bufsize 1000k -x264-params nal-hrd=cbr \
         -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -shortest -f flv \
