@@ -39,7 +39,7 @@ jobs:
         drawtext=fontfile='${FONT_PATH}':text='${MESSAGE}':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=98:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=15" \
         -c:v libx264 -preset ultrafast -b:v 1500k -maxrate 1500k -bufsize 3000k \
         -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -shortest -f flv \
-        rtmp://a.rtmp.youtube.com/live2/${{ secrets.AA_KEY }} || true
+        rtmp://a.rtmp.youtube.com/live2/${{ secrets.NO_KEY }} || true
 
     - name: Automatically Trigger Next Stream
       if: always()
